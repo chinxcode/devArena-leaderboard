@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrophy, faCode, faCheckCircle, faTimes, faClock, faSortAmountDown, faSortAmountUp } from "@fortawesome/free-solid-svg-icons";
@@ -6,6 +6,7 @@ import moment from "moment-timezone";
 
 const UserDetailPopup = ({ user, onClose, theme }) => {
     const [sortAscending, setSortAscending] = useState(false);
+    const [filter, setFilter] = useState("Total");
     if (!user) return null;
 
     const difficultyColor = {
@@ -18,9 +19,16 @@ const UserDetailPopup = ({ user, onClose, theme }) => {
         return moment.unix(timestamp).tz("Asia/Kolkata").format("MMMM D, YYYY h:mm A");
     };
 
-    const sortedQuestions = Object.entries(user.solvedQuestions || {}).sort((a, b) => {
+    const filteredQuestions = Object.entries(user.solvedQuestions || {}).filter(([_, question]) => {
+        if (filter === "Total") return true;
+        return question.difficulty === filter;
+    });
+
+    const sortedQuestions = filteredQuestions.sort((a, b) => {
         return sortAscending ? a[1].timestamp - b[1].timestamp : b[1].timestamp - a[1].timestamp;
     });
+
+    const filterOptions = ["Total", "Easy", "Medium", "Hard"];
 
     return (
         <motion.div
@@ -36,7 +44,7 @@ const UserDetailPopup = ({ user, onClose, theme }) => {
                 exit={{ scale: 0.9, opacity: 0 }}
                 className={`${
                     theme === "dark" ? "bg-gray-800 text-white" : "bg-white text-gray-900"
-                } p-6 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto`}
+                } p-6 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto scrollbar-hide`}
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="flex justify-between items-center mb-6">
@@ -83,18 +91,26 @@ const UserDetailPopup = ({ user, onClose, theme }) => {
                 <div className="mb-6">
                     <h3 className="text-xl font-bold mb-3">Questions Solved</h3>
                     <div className="grid grid-cols-4 gap-3">
-                        {["Total", "Easy", "Medium", "Hard"].map((type) => (
-                            <div key={type} className={`p-3 rounded-lg shadow ${theme === "dark" ? "bg-gray-700" : "bg-gray-100"}`}>
-                                <p className="text-sm opacity-75">{type}</p>
-                                <p className="text-xl font-bold">{user[`${type.toLowerCase()}QuestionsSolved`] || 0}</p>
-                            </div>
+                        {filterOptions.map((option) => (
+                            <motion.div
+                                key={option}
+                                className={`p-3 rounded-lg shadow cursor-pointer ${theme === "dark" ? "bg-gray-700" : "bg-gray-100"} ${
+                                    filter === option ? (theme === "dark" ? "ring-2 ring-blue-500" : "ring-2 ring-blue-400") : ""
+                                }`}
+                                onClick={() => setFilter(option)}
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                            >
+                                <p className="text-sm opacity-75">{option}</p>
+                                <p className="text-xl font-bold">{user[`${option.toLowerCase()}QuestionsSolved`] || 0}</p>
+                            </motion.div>
                         ))}
                     </div>
                 </div>
 
                 <div>
                     <div className="flex justify-between items-center mb-3">
-                        <h3 className="text-xl font-bold">Solved Questions</h3>
+                        <h3 className="text-xl font-bold">Solved Questions ({filter})</h3>
                         <button
                             onClick={() => setSortAscending(!sortAscending)}
                             className={`py-2 px-3 rounded-full ${
@@ -104,35 +120,44 @@ const UserDetailPopup = ({ user, onClose, theme }) => {
                             <FontAwesomeIcon icon={sortAscending ? faSortAmountUp : faSortAmountDown} />
                         </button>
                     </div>
-                    <div className="space-y-2">
-                        {sortedQuestions.map(([slug, question]) => (
-                            <div key={slug} className={`p-3 rounded-lg shadow ${theme === "dark" ? "bg-gray-700" : "bg-gray-100"}`}>
-                                <div className="flex justify-between items-center">
-                                    <a
-                                        href={`https://leetcode.com/problems/${slug}`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="text-blue-500 hover:underline font-medium"
-                                    >
-                                        {question.title}
-                                    </a>
-                                    <span className={`text-sm font-semibold ${difficultyColor[question.difficulty]}`}>
-                                        {question.difficulty}
-                                    </span>
-                                </div>
-                                <div className="flex items-center mt-2 text-sm">
-                                    <FontAwesomeIcon icon={faCheckCircle} className="text-green-500 mr-2" />
-                                    <span>
-                                        {question.status} in {question.language}
-                                    </span>
-                                </div>
-                                <div className="flex items-center mt-2 text-sm">
-                                    <FontAwesomeIcon icon={faClock} className="text-gray-500 mr-2" />
-                                    <span>{formatTimestamp(question.timestamp)}</span>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
+                    <AnimatePresence>
+                        <motion.div className="space-y-2" layout>
+                            {sortedQuestions.map(([slug, question]) => (
+                                <motion.div
+                                    key={slug}
+                                    layout
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -20 }}
+                                    className={`p-3 rounded-lg shadow ${theme === "dark" ? "bg-gray-700" : "bg-gray-100"}`}
+                                >
+                                    <div className="flex justify-between items-center">
+                                        <a
+                                            href={`https://leetcode.com/problems/${slug}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-blue-500 hover:underline font-medium"
+                                        >
+                                            {question.title}
+                                        </a>
+                                        <span className={`text-sm font-semibold ${difficultyColor[question.difficulty]}`}>
+                                            {question.difficulty}
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center mt-2 text-sm">
+                                        <FontAwesomeIcon icon={faCheckCircle} className="text-green-500 mr-2" />
+                                        <span>
+                                            {question.status} in {question.language}
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center mt-2 text-sm">
+                                        <FontAwesomeIcon icon={faClock} className="text-gray-500 mr-2" />
+                                        <span>{formatTimestamp(question.timestamp)}</span>
+                                    </div>
+                                </motion.div>
+                            ))}
+                        </motion.div>
+                    </AnimatePresence>
                 </div>
             </motion.div>
         </motion.div>
