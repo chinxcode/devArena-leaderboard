@@ -1,9 +1,11 @@
 import { motion } from "framer-motion";
+import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTrophy, faCode, faCheckCircle, faTimes, faClock } from "@fortawesome/free-solid-svg-icons";
+import { faTrophy, faCode, faCheckCircle, faTimes, faClock, faSortAmountDown, faSortAmountUp } from "@fortawesome/free-solid-svg-icons";
 import moment from "moment-timezone";
 
 const UserDetailPopup = ({ user, onClose, theme }) => {
+    const [sortAscending, setSortAscending] = useState(false);
     if (!user) return null;
 
     const difficultyColor = {
@@ -15,6 +17,10 @@ const UserDetailPopup = ({ user, onClose, theme }) => {
     const formatTimestamp = (timestamp) => {
         return moment.unix(timestamp).tz("Asia/Kolkata").format("MMMM D, YYYY h:mm A");
     };
+
+    const sortedQuestions = Object.entries(user.solvedQuestions || {}).sort((a, b) => {
+        return sortAscending ? a[1].timestamp - b[1].timestamp : b[1].timestamp - a[1].timestamp;
+    });
 
     return (
         <motion.div
@@ -87,9 +93,19 @@ const UserDetailPopup = ({ user, onClose, theme }) => {
                 </div>
 
                 <div>
-                    <h3 className="text-xl font-bold mb-3">Solved Questions</h3>
+                    <div className="flex justify-between items-center mb-3">
+                        <h3 className="text-xl font-bold">Solved Questions</h3>
+                        <button
+                            onClick={() => setSortAscending(!sortAscending)}
+                            className={`py-2 px-3 rounded-full ${
+                                theme === "dark" ? "bg-gray-700 hover:bg-gray-600" : "bg-gray-200 hover:bg-gray-300"
+                            }`}
+                        >
+                            <FontAwesomeIcon icon={sortAscending ? faSortAmountUp : faSortAmountDown} />
+                        </button>
+                    </div>
                     <div className="space-y-2">
-                        {Object.entries(user.solvedQuestions || {}).map(([slug, question]) => (
+                        {sortedQuestions.map(([slug, question]) => (
                             <div key={slug} className={`p-3 rounded-lg shadow ${theme === "dark" ? "bg-gray-700" : "bg-gray-100"}`}>
                                 <div className="flex justify-between items-center">
                                     <a
