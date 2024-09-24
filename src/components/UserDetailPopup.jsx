@@ -48,9 +48,13 @@ const UserDetailPopup = ({ user, onClose, theme }) => {
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-500 to-purple-600 text-transparent bg-clip-text">
+                    <a
+                        className="text-2xl font-bold bg-gradient-to-r from-blue-500 to-purple-600 text-transparent bg-clip-text"
+                        href={`https://leetcode.com/u/${user.username}/`}
+                        target="_blank"
+                    >
                         {user.username || "N/A"}
-                    </h2>
+                    </a>
                     <button
                         onClick={onClose}
                         className={`text-2xl ${theme === "dark" ? "text-gray-400 hover:text-white" : "text-gray-600 hover:text-black"}`}
