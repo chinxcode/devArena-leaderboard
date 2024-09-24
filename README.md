@@ -4,6 +4,8 @@ DevArena is an exciting coding competition organized by the BCA 2nd year student
 
 > This project was conceived and developed by [Sachin Sharma](https://github.com/chinxcode)
 
+> APIs used - [leetscan-api](https://github.com/chinxcode/leetscan-api) and [profile-data-handler](https://github.com/chinxcode/profile-data-handler) also developed by [Sachin](https://www.linkedin.com/in/sachinxcode)
+
 ## Features
 
 -   Live tracking of participants' LeetCode profiles
