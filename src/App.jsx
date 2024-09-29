@@ -1,6 +1,5 @@
-import { useState, useEffect, useCallback } from "react";
-import { GoogleReCaptchaProvider, GoogleReCaptcha } from "react-google-recaptcha-v3";
-import debounce from "lodash/debounce";
+import { useState, useEffect } from "react";
+import ReCAPTCHA from "react-google-recaptcha";
 import Header from "./components/Header";
 import LeaderBoard from "./components/LeaderBoard";
 import YearSelector from "./components/YearSelector";
@@ -20,7 +19,7 @@ function App() {
         if (verified) {
             fetchData();
         }
-    }, [verified, selectedYear]);
+    }, [verified]);
 
     const fetchData = async () => {
         setLoading(true);
@@ -40,8 +39,9 @@ function App() {
         setVerified(true);
     };
 
-    const debouncedSearch = useCallback(
-        debounce((searchTerm) => {
+    const handleSearch = (searchTerm) => {
+        console.log("Searching for", searchTerm);
+        if (searchTerm.length >= 1) {
             const filtered = allLeaderboardData
                 .filter(
                     (user) =>
@@ -51,39 +51,36 @@ function App() {
                 )
                 .filter((user) => user.year === selectedYear);
             setFilteredLeaderboardData(filtered);
-        }, 300),
-        [allLeaderboardData, selectedYear]
-    );
-
-    const handleSearch = (searchTerm) => {
-        debouncedSearch(searchTerm);
+        } else {
+            setFilteredLeaderboardData(allLeaderboardData.filter((user) => user.year === selectedYear));
+        }
     };
 
     const handleYearChange = (year) => {
+        console.log("Year changed to", year);
         setSelectedYear(year);
         setFilteredLeaderboardData(allLeaderboardData.filter((user) => user.year === year));
     };
 
     return (
-        <GoogleReCaptchaProvider reCaptchaKey="6LdmTlIqAAAAAN5_zhLdM8n8H3nANVvYc9ifQIge">
-            <div className={`min-h-screen flex flex-col ${theme === "dark" ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-900"}`}>
-                <Header theme={theme} toggleTheme={toggleTheme} />
-                <main className="container mx-auto px-4 py-8 flex-grow">
-                    {!verified ? (
-                        <div className="flex justify-center items-center h-full">
-                            <GoogleReCaptcha onVerify={handleVerify} />
-                        </div>
-                    ) : (
-                        <>
-                            <YearSelector selectedYear={selectedYear} setSelectedYear={handleYearChange} theme={theme} />
-                            <SearchBar onSearch={handleSearch} theme={theme} />
-                            <LeaderBoard data={filteredLeaderboardData} theme={theme} loading={loading} />
-                        </>
-                    )}
-                </main>
-                <Footer theme={theme} />
-            </div>
-        </GoogleReCaptchaProvider>
+        <div className={`min-h-screen flex flex-col ${theme === "dark" ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-900"}`}>
+            <Header theme={theme} toggleTheme={toggleTheme} />
+            <main className="container mx-auto px-4 py-8 flex-grow">
+                {!verified ? (
+                    <div className="flex flex-col justify-center items-center h-full">
+                        <p className="mb-4">Please verify that you&apos;re human:</p>
+                        <ReCAPTCHA sitekey="6LcWdFIqAAAAAOrsXOSii05PARObH4yijdGEldEY" onChange={handleVerify} size="normal" />
+                    </div>
+                ) : (
+                    <>
+                        <YearSelector selectedYear={selectedYear} setSelectedYear={handleYearChange} theme={theme} />
+                        <SearchBar onSearch={handleSearch} theme={theme} />
+                        <LeaderBoard data={filteredLeaderboardData} theme={theme} loading={loading} />
+                    </>
+                )}
+            </main>
+            <Footer theme={theme} />
+        </div>
     );
 }
 

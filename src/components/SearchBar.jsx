@@ -1,16 +1,19 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch, faTimes } from "@fortawesome/free-solid-svg-icons";
 
 const SearchBar = ({ onSearch, theme }) => {
     const [searchTerm, setSearchTerm] = useState("");
 
-    useEffect(() => {
-        onSearch(searchTerm);
-    }, [searchTerm, onSearch]);
+    const handleInputChange = (e) => {
+        const value = e.target.value;
+        setSearchTerm(value);
+        onSearch(value);
+    };
 
     const handleClear = () => {
         setSearchTerm("");
+        onSearch("");
     };
 
     return (
@@ -24,7 +27,7 @@ const SearchBar = ({ onSearch, theme }) => {
                     type="text"
                     placeholder="Search by username, enrollment, or name"
                     value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onChange={handleInputChange}
                     className={`w-full py-3 px-12 rounded-full focus:outline-none focus:ring-2 transition-all duration-300 ${
                         theme === "dark"
                             ? "bg-gray-700 text-white focus:ring-blue-500 placeholder-gray-400"
