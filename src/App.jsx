@@ -24,7 +24,7 @@ function App() {
     const fetchData = async () => {
         setLoading(true);
         try {
-            const response = await fetch(`https://profile-data-handler.vercel.app/api/leaderboard`);
+            const response = await fetch(`https://profile-data-handler.vercel.app/api/leaderboard-data`);
             const data = await response.json();
             setAllLeaderboardData(data);
             setFilteredLeaderboardData(data.filter((user) => user.year === selectedYear));
