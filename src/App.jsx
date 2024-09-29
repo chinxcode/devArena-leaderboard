@@ -69,7 +69,7 @@ function App() {
                 {!verified ? (
                     <div className="flex flex-col justify-center items-center h-full">
                         <p className="mb-4">Please verify that you&apos;re human:</p>
-                        <ReCAPTCHA sitekey="6LcWdFIqAAAAAOrsXOSii05PARObH4yijdGEldEY" onChange={handleVerify} size="normal" />
+                        <ReCAPTCHA sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY} onChange={handleVerify} size="normal" />
                     </div>
                 ) : (
                     <>
