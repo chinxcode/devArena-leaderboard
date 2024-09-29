@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrophy, faCode, faCheckCircle, faTimes, faClock, faSortAmountDown, faSortAmountUp } from "@fortawesome/free-solid-svg-icons";
 import moment from "moment-timezone";
@@ -126,67 +126,40 @@ const UserDetailPopup = ({ user, onClose, theme }) => {
                     </div>
                     <AnimatePresence>
                         <motion.div className="space-y-2" layout>
-                            {sortedQuestions.map(([slug, question]) => {
-                                const ref = useRef(null);
-                                const [isVisible, setIsVisible] = useState(false);
-
-                                useEffect(() => {
-                                    const observer = new IntersectionObserver(
-                                        ([entry]) => {
-                                            if (entry.isIntersecting) {
-                                                setIsVisible(true);
-                                                observer.unobserve(entry.target);
-                                            }
-                                        },
-                                        { threshold: 0.1 }
-                                    );
-
-                                    if (ref.current) {
-                                        observer.observe(ref.current);
-                                    }
-
-                                    return () => {
-                                        if (ref.current) {
-                                            observer.unobserve(ref.current);
-                                        }
-                                    };
-                                }, []);
-
-                                return (
-                                    <motion.div
-                                        key={slug}
-                                        ref={ref}
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-                                        transition={{ duration: 0.5 }}
-                                        className={`p-3 rounded-lg shadow ${theme === "dark" ? "bg-gray-700" : "bg-gray-100"}`}
-                                    >
-                                        <div className="flex justify-between items-center">
-                                            <a
-                                                href={`https://leetcode.com/problems/${slug}`}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="text-blue-500 hover:underline font-medium"
-                                            >
-                                                {question.title}
-                                            </a>
-                                            <span className={`text-sm font-semibold ${difficultyColor[question.difficulty]}`}>
-                                                {question.difficulty}
-                                            </span>
-                                        </div>
-                                        <div className="flex items-center mt-2 text-sm">
-                                            <FontAwesomeIcon icon={faCheckCircle} className="text-green-500 mr-2" />
-                                            <span>
-                                                {question.status} in {question.language}
-                                            </span>
-                                        </div>
-                                        <div className="flex items-center mt-2 text-sm">
-                                            <FontAwesomeIcon icon={faClock} className="text-gray-500 mr-2" />
-                                            <span>{formatTimestamp(question.timestamp)}</span>
-                                        </div>
-                                    </motion.div>
-                                );
-                            })}
+                            {sortedQuestions.map(([slug, question]) => (
+                                <motion.div
+                                    key={slug}
+                                    layout
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -20 }}
+                                    className={`p-3 rounded-lg shadow ${theme === "dark" ? "bg-gray-700" : "bg-gray-100"}`}
+                                >
+                                    <div className="flex justify-between items-center">
+                                        <a
+                                            href={`https://leetcode.com/problems/${slug}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-blue-500 hover:underline font-medium"
+                                        >
+                                            {question.title}
+                                        </a>
+                                        <span className={`text-sm font-semibold ${difficultyColor[question.difficulty]}`}>
+                                            {question.difficulty}
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center mt-2 text-sm">
+                                        <FontAwesomeIcon icon={faCheckCircle} className="text-green-500 mr-2" />
+                                        <span>
+                                            {question.status} in {question.language}
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center mt-2 text-sm">
+                                        <FontAwesomeIcon icon={faClock} className="text-gray-500 mr-2" />
+                                        <span>{formatTimestamp(question.timestamp)}</span>
+                                    </div>
+                                </motion.div>
+                            ))}
                         </motion.div>
                     </AnimatePresence>
                 </div>
