@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import UserDetailPopup from "./UserDetailPopup";
 import Loader from "./Loader";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -7,12 +7,18 @@ import { faTrophy, faMedal, faAward, faUser, faStar, faInfoCircle, faExclamation
 
 const LeaderBoard = ({ data, theme, loading }) => {
     const [selectedUser, setSelectedUser] = useState(null);
+    const [sortedData, setSortedData] = useState([]);
 
-    const sortedData = [...data].sort((a, b) => {
-        if (a.rank === 0) return 1;
-        if (b.rank === 0) return -1;
-        return a.rank - b.rank;
-    });
+    useEffect(() => {
+        const sorted = [...data].sort((a, b) => {
+            if (a.rank === 0 && b.rank === 0) return 0;
+            if (a.rank === 0) return 1;
+            if (b.rank === 0) return -1;
+            return a.rank - b.rank;
+        });
+        setSortedData(sorted);
+        setSelectedUser(null);
+    }, [data]);
 
     const handleRowClick = (user) => {
         setSelectedUser(user);
@@ -93,7 +99,7 @@ const LeaderBoard = ({ data, theme, loading }) => {
                     >
                         <FontAwesomeIcon icon={faExclamationTriangle} className="text-4xl mb-4" />
                         <h3 className="text-xl font-semibold mb-2">No Results Found</h3>
-                        <p>Sorry, we couldn't find any users matching your criteria.</p>
+                        <p>Sorry, we couldn&apos;t find any users matching your criteria.</p>
                     </motion.div>
                 )}
             </div>

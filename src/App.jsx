@@ -75,7 +75,7 @@ function App() {
                     <>
                         <YearSelector selectedYear={selectedYear} setSelectedYear={handleYearChange} theme={theme} />
                         <SearchBar onSearch={handleSearch} theme={theme} />
-                        <LeaderBoard data={filteredLeaderboardData} theme={theme} loading={loading} />
+                        <LeaderBoard key={selectedYear} data={filteredLeaderboardData} theme={theme} loading={loading} />
                     </>
                 )}
             </main>
